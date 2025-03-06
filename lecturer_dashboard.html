@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Logout Button (Top right) -->
+        <div class="text-end mb-4">
+            <button class="btn btn-danger" id="logout-btn">Logout</button>
+        </div>
+
+        <h2 class="mb-4">Lecturer Dashboard</h2>
+
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Request ID</th>
+                    <th>Student ID</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="requests-table">
+                <!-- Requests will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch requests needing lecturer approval
+        function fetchRequests() {
+            fetch("http://localhost:8081/api/requests/lecturer")
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data,'data')
+                    let tableContent = "";
+                    data.forEach(request => {
+                        tableContent += ` 
+                            <tr>
+                                <td>${request.id}</td>
+                                <td>${request.student_id}</td>
+                                <td>${request.reason}</td>
+                                <td>${request.date}</td>
+                                <td>
+                                    <button class="btn btn-success approve-btn" data-id='${request.id}'>Approve</button>
+                                </td>
+                            </tr>`;
+                    });
+                    document.getElementById("requests-table").innerHTML = tableContent;
+
+                    // Add event listeners for all approve buttons
+                    document.querySelectorAll(".approve-btn").forEach(button => {
+                        button.addEventListener("click", function () {
+                            approveRequest(this.dataset.id);
+                        });
+                    });
+                })
+                .catch(() => {
+                    alert("Error fetching requests");
+                });
+        }
+
+        // Approve request
+        function approveRequest(requestId) {
+            fetch("http://localhost:8081/api/approve-lecturer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ request_id: requestId }) // Convert object to JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchRequests(); // Refresh the list after approval
+            })
+            .catch(() => {
+                alert("Error approving request");
+            });
+        }
+
+        // Logout button functionality
+        document.getElementById("logout-btn").addEventListener("click", function() {
+            // Perform the logout action (e.g., redirect to login page)
+            window.location.href = "login.html"; // Change to your login page URL
+        });
+
+        // Load requests when page loads
+        document.addEventListener("DOMContentLoaded", fetchRequests);
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .request-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+        .request-card p {
+            margin: 5px 0;
+        }
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        /* Logout Button */
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        /* Toast Message Styles */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 10px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Parent Dashboard</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div id="requests"></div>
+    </div>
+
+    <!-- Toast Message -->
+    <div id="toast" class="toast">Request Approved Successfully!</div>
+
+    <script>
+        console.log('hj', 'student_id');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const student_id = localStorage.getItem("student_id");
+            loadRequests(student_id);
+        });
+
+        function loadRequests(student_id) {
+            if (!student_id) {
+                console.error("Error: Student ID is missing!");
+                return;
+            }
+
+            fetch(`http://localhost:8081/api/requests/parent/${student_id}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Received data:", data);
+                    const container = document.getElementById("requests");
+
+                    // Filter out non-pending requests
+                    const pendingRequests = data.filter(req => req.status === "pending");
+
+                    if (pendingRequests.length === 0) {
+                        container.innerHTML = "<p>No pending requests</p>";
+                        return;
+                    }
+
+                    container.innerHTML = pendingRequests.map(req =>
+                        `<div class="request-card">
+                            <p><strong>Reason:</strong> ${req.reason}</p>
+                            <p><strong>Status:</strong> ${req.status}</p>
+                            <p><strong>Date:</strong> ${req.date}</p>
+                            <button class="approve-btn" onclick="approveRequest(${req.id})">Approve</button>
+                        </div>`
+                    ).join("");
+                })
+                .catch(err => console.error("Error fetching requests:", err));
+        }
+
+        function approveRequest(request_id) {
+            fetch("http://localhost:8081/api/approve-parent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ request_id })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showToast(data.message);
+                    const student_id = localStorage.getItem("student_id");
+                    loadRequests(student_id);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+
+            // Hide the toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem("student_id"); // Remove student_id from local storage
+            alert("You have been logged out.");
+            window.location.href = "login.html"; // Redirect to login page
+        }
+    </script>
+</body>
+</html>
