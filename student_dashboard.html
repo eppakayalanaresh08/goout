@@ -130,8 +130,10 @@
                 showToast("Please enter a reason.");
                 return;
             }
+
+            console.log( studentId, reason,'ghj')
             
-            fetch("http://localhost:8081/api/request", {
+            fetch("https://gooutbackend.onrender.com/api/request", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ student_id: studentId, reason })
@@ -154,7 +156,7 @@
                 return;
             }
 
-            fetch(`http://localhost:8081/api/requests/parent/${studentId}`)
+            fetch(`https://gooutbackend.onrender.com/api/requests/parent/${studentId}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! Status: ${res.status}`);

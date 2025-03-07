@@ -34,7 +34,7 @@
     <script>
         // Fetch requests needing lecturer approval
         function fetchRequests() {
-            fetch("http://localhost:8081/api/requests/lecturer")
+            fetch("https://gooutbackend.onrender.com/api/requests/lecturer")
                 .then(response => response.json())
                 .then(data => {
                     console.log(data,'data')
@@ -67,7 +67,7 @@
 
         // Approve request
         function approveRequest(requestId) {
-            fetch("http://localhost:8081/api/approve-lecturer", {
+            fetch("https://gooutbackend.onrender.com/api/approve-lecturer", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ request_id: requestId }) // Convert object to JSON

@@ -12,52 +12,64 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
         .container {
             background: #fff;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            width: 300px;
+            width: 350px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
         }
         input, button {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0;
+            padding: 12px;
+            margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 16px;
         }
         button {
-            background: #28a745;
+            background-color: #28a745;
             color: white;
             cursor: pointer;
         }
         button:hover {
-            background: #218838;
+            background-color: #218838;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        .toast {
+            visibility: hidden;
+            max-width: 50%;
+            height: 50px;
+            margin: 10px auto;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            padding: 10px;
+            position: fixed;
+            z-index: 9999;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 3s;
+        }
+        @keyframes fadein {
+            from { top: 0; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+        @keyframes fadeout {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -71,7 +83,7 @@
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Register</button>
         </form>
-        <p id="message"></p>
+        <div id="message" class="toast"></div>
     </div>
 
     <script>
@@ -82,11 +94,9 @@
             const email = document.getElementById("email").value;
             const mobile = document.getElementById("mobile").value;
             const password = document.getElementById("password").value;
-            const role = "lecturer"; // 🔹 Role is fixed as "lecturer"
+            const role = "lecturer"; // Role is fixed as "lecturer"
 
-            console.log(name,'name')
-
-            const response = await fetch("http://localhost:8081/api/register-lecturer", {
+            const response = await fetch("https://gooutbackend.onrender.com/api/register-lecturer", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -95,7 +105,25 @@
             });
 
             const data = await response.json();
-            document.getElementById("message").innerText = data.message;
+
+            // Show toast message based on the response
+            const toast = document.getElementById("message");
+            toast.innerText = data.message;
+            toast.classList.add("show");
+
+            // If registration is successful, refresh the page
+            if (data.success) {
+                // Hide the toast message after 3.5 seconds
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                    window.location.reload();  // Reload the page after success
+                }, 3500);
+            } else {
+                // Hide the toast message after 3.5 seconds for failure case
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                }, 3500);
+            }
         });
     </script>
 

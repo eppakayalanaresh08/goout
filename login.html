@@ -159,7 +159,7 @@
             errorMessage.textContent = "";
             loader.style.display = "block";
 
-            fetch("http://localhost:8081/api/login", {
+            fetch("https://gooutbackend.onrender.com/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })

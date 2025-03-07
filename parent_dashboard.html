@@ -90,6 +90,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const student_id = localStorage.getItem("student_id");
+            console.log(student_id,'student_id')
             loadRequests(student_id);
         });
 
@@ -99,7 +100,7 @@
                 return;
             }
 
-            fetch(`http://localhost:8081/api/requests/parent/${student_id}`)
+            fetch(`https://gooutbackend.onrender.com/api/requests/parent/${student_id}`)
                 .then(res => {
                     if (!res.ok) {
                         throw new Error(`HTTP error! Status: ${res.status}`);
@@ -117,33 +118,61 @@
                         container.innerHTML = "<p>No pending requests</p>";
                         return;
                     }
-
+                   console.log('hilo')
                     container.innerHTML = pendingRequests.map(req =>
                         `<div class="request-card">
                             <p><strong>Reason:</strong> ${req.reason}</p>
                             <p><strong>Status:</strong> ${req.status}</p>
                             <p><strong>Date:</strong> ${req.date}</p>
-                            <button class="approve-btn" onclick="approveRequest(${req.id})">Approve</button>
+                            <button class="approve-btn" onclick="approveRequest('${req.id}')">Approve</button>
+
                         </div>`
                     ).join("");
                 })
                 .catch(err => console.error("Error fetching requests:", err));
         }
 
-        function approveRequest(request_id) {
-            fetch("http://localhost:8081/api/approve-parent", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ request_id })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    showToast(data.message);
-                    const student_id = localStorage.getItem("student_id");
-                    loadRequests(student_id);
-                })
-                .catch(err => console.error(err));
-        }
+//         function approveRequest(request_id) {
+// console.log.log('hjkhghhbj')
+//             // console.log(request_id,'request_id')
+//             // /api/approve-parent
+//             // /api/accept-request-parent
+//             fetch("http://localhost:8081/api/accept-request-parent", {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({ request_id })
+//             })
+//                 .then(res => res.json())
+//                 .then(data => {
+//                     showToast(data.message);
+//                     const student_id = localStorage.getItem("student_id");
+//                     loadRequests(student_id);
+//                 })
+//                 .catch(err => console.error(err));
+//         }
+
+function approveRequest(request_id) {
+    console.log('Approving request with ID:', request_id);
+
+    // Make sure the request_id is passed correctly
+    fetch("https://gooutbackend.onrender.com/api/accept-request-parent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id })
+    })
+        .then(res => res.json())
+        .then(data => {
+            // Show toast message with the response
+            showToast(data.message);
+
+            // Reload the pending requests after approval
+            const student_id = localStorage.getItem("student_id");
+            loadRequests(student_id);
+        })
+        .catch(err => console.error('Error approving request:', err));
+}
+
+
 
         function showToast(message) {
             const toast = document.getElementById("toast");
