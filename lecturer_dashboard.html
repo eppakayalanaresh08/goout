@@ -29,28 +29,48 @@
                 <!-- Requests will be populated dynamically -->
             </tbody>
         </table>
+
+        <!-- Message when no requests are found -->
+        <p id="no-requests" class="text-center text-muted" style="display: none;">No student requests available.</p>
+
+        <!-- Toast Notification -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+            <div id="toast-message" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        Request Approved Successfully!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fetch requests needing lecturer approval
         function fetchRequests() {
             fetch("https://gooutbackend.onrender.com/api/requests/lecturer")
                 .then(response => response.json())
                 .then(data => {
                     console.log(data,'data')
                     let tableContent = "";
-                    data.forEach(request => {
-                        tableContent += ` 
-                            <tr>
-                                <td>${request.id}</td>
-                                <td>${request.student_id}</td>
-                                <td>${request.reason}</td>
-                                <td>${request.date}</td>
-                                <td>
-                                    <button class="btn btn-success approve-btn" data-id='${request.id}'>Approve</button>
-                                </td>
-                            </tr>`;
-                    });
+                    if (data.message === "No requests found for lecturers") {
+                        document.getElementById("no-requests").style.display = "block";
+                    } else {
+                        document.getElementById("no-requests").style.display = "none";
+                        data.forEach(request => {
+                            tableContent += ` 
+                                <tr>
+                                    <td>${request.id}</td>
+                                    <td>${request.student_id}</td>
+                                    <td>${request.reason}</td>
+                                    <td>${request.date}</td>
+                                    <td>
+                                        <button class="btn btn-success approve-btn" data-id='${request.id}'>Approve</button>
+                                    </td>
+                                </tr>`;
+                        });
+                    }
                     document.getElementById("requests-table").innerHTML = tableContent;
 
                     // Add event listeners for all approve buttons
@@ -65,16 +85,15 @@
                 });
         }
 
-        // Approve request
         function approveRequest(requestId) {
             fetch("https://gooutbackend.onrender.com/api/approve-lecturer", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ request_id: requestId }) // Convert object to JSON
+                body: JSON.stringify({ request_id: requestId })
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                showToast(); // Show toast message
                 fetchRequests(); // Refresh the list after approval
             })
             .catch(() => {
@@ -82,13 +101,16 @@
             });
         }
 
-        // Logout button functionality
+        function showToast() {
+            const toastEl = document.getElementById("toast-message");
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
         document.getElementById("logout-btn").addEventListener("click", function() {
-            // Perform the logout action (e.g., redirect to login page)
-            window.location.href = "login.html"; // Change to your login page URL
+            window.location.href = "login.html";
         });
 
-        // Load requests when page loads
         document.addEventListener("DOMContentLoaded", fetchRequests);
     </script>
 </body>

@@ -78,69 +78,44 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-
         .register-link {
-    margin-top: 15px;
-    font-size: 14px;
-}
-
-.register-link a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.register-link a:hover {
-    text-decoration: underline;
-}
-
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-container input {
+            width: 100%;
+            padding-right: 40px;
+        }
+        .password-container .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <!-- <div class="login-card">
-        <h2 style="font-family:Arial, Helvetica, sans-serif">StuPass Login</h2>
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Enter Email">
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" placeholder="Enter Password">
-        </div>
-        <button class="btn" onclick="login()">Login</button>
-        <div class="loader" id="loader"></div>
-        <p class="error-message" id="error-message"></p>
-    </div>
-
-
- -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <div class="login-card">
-        <h2 style="font-family:Arial, Helvetica, sans-serif">StuPass Login</h2>
+        <h2 style="font-family:Arial, Helvetica, sans-serif;font-size:23px;">College Permission Management Login</h2>
         <div class="input-group">
             <input type="email" id="email" placeholder="Enter Email">
         </div>
-        <div class="input-group">
+        <div class="input-group password-container">
             <input type="password" id="password" placeholder="Enter Password">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
         </div>
         <button class="btn" onclick="login()">Login</button>
         <div class="loader" id="loader"></div>
@@ -148,8 +123,16 @@
         <p class="register-link">New User? <a href="index.html">Register Here</a></p>
     </div>
     
-
     <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+
         function login() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -169,8 +152,6 @@
                 loader.style.display = "none";
 
                 if (data.success) {
-
-                    console.log('admin@',data)
                     localStorage.setItem("student_id", data.student_id);
 
                     if (data.role === "student") {
